@@ -98,11 +98,17 @@ EVENT_FLIGHTCHECK_ERROR = "adk.flightcheck.error"
 #
 # One capability per real maker-facing ADK skill / entry point:
 #   setup                   -> first-run environment setup + discovery
-#                              (discover / list_environments are sub-steps of
-#                              this flow and do NOT emit their own capability;
-#                              the adk.agent.create event at the end of setup is
-#                              tracked separately by the "Agents Created" KPI and
-#                              is NOT a capability-donut slice)
+#                              (agent list_environments / bot discovery are
+#                              sub-steps of this flow and do NOT emit their own
+#                              capability; setup also writes a baseline inventory
+#                              but that is not a separate slice. The adk.agent.create
+#                              event at the end of setup is tracked separately by
+#                              the "Agents Created" KPI and is NOT a capability-donut
+#                              slice)
+#   discover                -> standalone environment inventory crawl + intake
+#                              (the /discover command: full connector/knowledge
+#                              discovery + maker-intent capture, distinct from the
+#                              baseline inventory setup writes for free)
 #   connect                 -> ServiceNow / Workday connection setup
 #   topic_*                 -> topic authoring (create / update / delete)
 #   workflow_*              -> workflow authoring (create / update / delete)
@@ -115,6 +121,7 @@ EVENT_FLIGHTCHECK_ERROR = "adk.flightcheck.error"
 #   flightcheck             -> pre-deployment readiness check
 ADK_CAPABILITIES = (
     "setup",
+    "discover",
     "connect",
     "topic_create",
     "topic_update",

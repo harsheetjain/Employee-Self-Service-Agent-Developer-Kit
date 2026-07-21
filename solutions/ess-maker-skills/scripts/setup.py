@@ -777,6 +777,20 @@ def main():
                  tc_count, wf_count, eval_count)
     print("Config:   .local/config.json")
 
+    # Write the environment inventory baseline (no extra sign-in): a reusable
+    # snapshot of connectors / packs / knowledge / template-configs / topics that
+    # the maker skills and the scenario planner consume. Best-effort — a
+    # discovery hiccup must never fail setup. The maker runs `/discover` later for
+    # a full live crawl (connection status + knowledge-source runtime state).
+    try:
+        from discover_inventory import build_and_write_baseline
+
+        inv_path = build_and_write_baseline()
+        if inv_path:
+            print(f"Inventory:{inv_path}")
+    except Exception:  # noqa: BLE001 — discovery must never break setup
+        pass
+
     # Telemetry: setup completing (config written) is the ADK "agent create"
     # for telemetry purposes — the maker now has a local agent workspace.
     # Best-effort; never affects setup.

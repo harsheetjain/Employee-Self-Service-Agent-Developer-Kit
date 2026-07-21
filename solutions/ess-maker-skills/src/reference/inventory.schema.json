@@ -1,0 +1,200 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/harsheetjain/Employee-Self-Service-Agent-Developer-Kit/inventory.schema.json",
+  "title": "ESS Environment Inventory",
+  "description": "Reusable, read-only snapshot of an ESS customer's Power Platform environment produced by scripts/discover_inventory.py and consumed by the maker skills and the ESS scenario planner. Canonical instance: workspace/inventory/inventory.json.",
+  "type": "object",
+  "required": ["schemaVersion", "generatedAt", "mode"],
+  "additionalProperties": true,
+  "properties": {
+    "schemaVersion": {
+      "type": "integer",
+      "const": 1,
+      "description": "Bump together with scripts/discovery/inventory.py SCHEMA_VERSION on breaking changes."
+    },
+    "generatedAt": { "type": "string", "format": "date-time" },
+    "generatedBy": { "type": "string" },
+    "mode": {
+      "type": "string",
+      "enum": ["baseline", "full"],
+      "description": "baseline = assembled from on-disk data only (no BAP/Island Gateway calls); full = live crawl."
+    },
+    "staleAfterHours": {
+      "type": "integer",
+      "description": "Consumers should warn when now - generatedAt exceeds this."
+    },
+    "environment": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "dataverseUrl": { "type": "string" },
+        "environmentId": { "type": "string", "description": "BAP environment id (present only in full mode)." },
+        "region": { "type": "string" },
+        "type": { "type": "string" },
+        "displayName": { "type": "string" }
+      }
+    },
+    "agents": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["schemaName"],
+        "additionalProperties": true,
+        "properties": {
+          "name": { "type": "string" },
+          "botId": { "type": "string" },
+          "schemaName": { "type": "string" },
+          "slug": { "type": "string" },
+          "folder": { "type": "string" },
+          "isManaged": { "type": "boolean" },
+          "persona": { "type": "string", "enum": ["HR", "IT", "unknown"] },
+          "counts": {
+            "type": "object",
+            "additionalProperties": { "type": "integer" }
+          },
+          "topics": { "type": "array", "items": { "type": "string" } },
+          "knowledgeSources": { "type": "array", "items": { "$ref": "#/definitions/knowledgeSource" } }
+        }
+      }
+    },
+    "connections": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["connector"],
+        "additionalProperties": true,
+        "properties": {
+          "connector": {
+            "type": "string",
+            "enum": ["workday", "service-now", "sharepoint", "sap", "other"]
+          },
+          "displayName": { "type": "string" },
+          "connectionId": { "type": "string" },
+          "status": {
+            "type": "string",
+            "description": "BAP status (Connected/Error/Unknown) or 'captured'/'configuring' when sourced from what /connect recorded."
+          },
+          "authType": { "type": "string" },
+          "instanceUrl": { "type": "string" },
+          "usage": { "type": "string" },
+          "source": {
+            "type": "string",
+            "description": "Provenance: 'bap' (live), 'connect' (captured by the /connect skill), or a '+'-joined combination."
+          }
+        }
+      }
+    },
+    "extensionPacks": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "workday": { "$ref": "#/definitions/pack" },
+        "servicenow": {
+          "allOf": [
+            { "$ref": "#/definitions/pack" },
+            { "properties": { "hrsd": { "type": "boolean" }, "itsm": { "type": "boolean" } } }
+          ]
+        },
+        "sap": { "$ref": "#/definitions/pack" }
+      }
+    },
+    "knowledgeSources": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/knowledgeSource" }
+    },
+    "templateConfigs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "properties": {
+          "uniqueName": { "type": "string" },
+          "name": { "type": "string" },
+          "connector": { "type": "string", "enum": ["workday", "servicenow", "sap", "unknown"] },
+          "operation": { "type": "string" },
+          "status": { "type": "string" }
+        }
+      }
+    },
+    "intake": {
+      "type": "array",
+      "description": "Maker intent to use a system discovery did not find already configured. See the state machine in inventory-contract.md.",
+      "items": {
+        "type": "object",
+        "required": ["system", "status"],
+        "additionalProperties": true,
+        "properties": {
+          "system": { "type": "string" },
+          "kind": { "type": "string", "enum": ["connector", "knowledge"] },
+          "status": {
+            "type": "string",
+            "enum": ["planned", "configuring", "configured", "declined"]
+          },
+          "desired": { "type": "boolean" },
+          "notes": { "type": "string" },
+          "capturedFrom": { "type": "string" },
+          "requestedAt": { "type": "string", "format": "date-time" },
+          "updatedAt": { "type": "string", "format": "date-time" }
+        }
+      }
+    },
+    "capabilityMatrix": {
+      "type": "array",
+      "description": "Per ess-catalogue category, a computed connector-readiness verdict. Priority/ordering still belongs to the catalogue - this only reports plumbing readiness.",
+      "items": {
+        "type": "object",
+        "required": ["id", "category", "verdict"],
+        "additionalProperties": true,
+        "properties": {
+          "id": { "type": "string" },
+          "category": { "type": "string" },
+          "domain": { "type": "string" },
+          "persona": { "type": "string" },
+          "scenarioRange": { "type": "string" },
+          "verdict": {
+            "type": "string",
+            "enum": ["ready", "partial", "planned", "blocked"]
+          },
+          "reason": { "type": "string" },
+          "requires": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "label": { "type": "string" },
+                "anyOf": { "type": "array", "items": { "type": "string" } },
+                "state": { "type": "string", "enum": ["satisfied", "installed", "planned", "absent"] }
+              }
+            }
+          },
+          "missing": { "type": "array", "items": { "type": "string" } },
+          "evidence": { "type": "array", "items": { "type": "string" } },
+          "note": { "type": "string" }
+        }
+      }
+    },
+    "notes": { "type": "array", "items": { "type": "string" } }
+  },
+  "definitions": {
+    "pack": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "installed": { "type": "boolean" },
+        "flowCount": { "type": "integer" },
+        "flavor": { "type": "string", "description": "e.g. Workday 'simplified' | 'legacy' | 'unknown'." }
+      }
+    },
+    "knowledgeSource": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "name": { "type": "string" },
+        "type": { "type": "string", "enum": ["SharePoint", "ServiceNowGraph", "unknown"] },
+        "url": { "type": "string" },
+        "state": { "type": "string" },
+        "source": { "type": "string", "enum": ["local", "runtime"] }
+      }
+    }
+  }
+}

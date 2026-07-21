@@ -285,6 +285,7 @@ After a successful push, `.baseline/` is updated to match the new state.
 
 | User intent | Skill to read |
 |-------------|--------------|
+| Take stock of the environment / discover what's connected / build the inventory | `src/skills/discover/SKILL.md` |
 | Connect to ServiceNow/Workday | `src/skills/connect/SKILL.md` |
 | Create a topic | `src/skills/topics/create/SKILL.md` |
 | Create a workflow | `src/skills/workflows/create/SKILL.md` |
@@ -308,6 +309,15 @@ After a successful push, `.baseline/` is updated to match the new state.
 **Trigger phrases for connect:** "connect ServiceNow", "set up ServiceNow",
 "integrate ServiceNow", "connect Workday", "set up Workday", "add ServiceNow",
 "I want to connect to ServiceNow", "ServiceNow integration".
+
+**Trigger phrases for discover:** "take stock of my environment", "discover my
+environment", "what's connected", "what can my agent do", "what do I already
+have", "build the inventory", "scan what's installed", "plan my ESS agent",
+"what connectors are available". The discover skill builds
+`workspace/inventory/inventory.json` (a reusable environment snapshot + a
+per-scenario connector-readiness matrix) that `/create` and the scenario planner
+consume. It also captures maker *intent* for systems that aren't connected yet
+(intake) and can hand off to `/connect`. See `src/reference/inventory-contract.md`.
 
 **Trigger phrases for troubleshooting:** "Workday error", "ISU not working",
 "invalid_client", "invalid username or password", "SOAP failure", "maker works

@@ -286,6 +286,7 @@ After a successful push, `.baseline/` is updated to match the new state.
 | User intent | Skill to read |
 |-------------|--------------|
 | Take stock of the environment / discover what's connected / build the inventory | `src/skills/discover/SKILL.md` |
+| Plan the ESS agent / which scenarios to enable / prioritized rollout plan | `src/skills/plan/SKILL.md` |
 | Connect to ServiceNow/Workday | `src/skills/connect/SKILL.md` |
 | Create a topic | `src/skills/topics/create/SKILL.md` |
 | Create a workflow | `src/skills/workflows/create/SKILL.md` |
@@ -318,6 +319,15 @@ have", "build the inventory", "scan what's installed", "plan my ESS agent",
 per-scenario connector-readiness matrix) that `/create` and the scenario planner
 consume. It also captures maker *intent* for systems that aren't connected yet
 (intake) and can hand off to `/connect`. See `src/reference/inventory-contract.md`.
+
+**Trigger phrases for plan:** "plan my ESS agent", "which scenarios should I
+enable", "give me a rollout plan", "what should I build first", "prioritize
+scenarios", "scenario plan", "deployment plan". The plan skill produces a
+rollout plan **enriched** by the tenant inventory (`/discover`) and **grounded on
+Microsoft Learn** — it reads the vendored `src/reference/ess-docs/` first, then
+does a live Learn search/fetch this turn and cites the pages. Anchors +
+grounding rules live in `src/reference/ess-learn-anchors.md`. It requires an
+inventory, so it nudges the user to run `/discover` first if one is missing.
 
 **Trigger phrases for troubleshooting:** "Workday error", "ISU not working",
 "invalid_client", "invalid username or password", "SOAP failure", "maker works

@@ -42,6 +42,7 @@ Your environment inventory is ready. Here's what you can do next:
 
 | Command | What it does |
 |---------|-------------|
+| `/plan` | Get a rollout plan for your agent, customized to what you have and grounded on Microsoft Learn |
 | `/create` | Build a topic or workflow — I'll reuse what's already here |
 | `/connect` | Connect another system (ServiceNow or Workday) |
 | `/menu` | See everything I can help with |

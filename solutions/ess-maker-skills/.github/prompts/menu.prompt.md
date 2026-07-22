@@ -14,6 +14,7 @@ Here's what I can help you with:
 | Command | What it does |
 |---------|-------------|
 | `/discover` | Type Enter to take stock of your environment — what's connected and what you can build |
+| `/plan` | Type Enter to get a scenario rollout plan customized to your environment and grounded on Microsoft Learn |
 | `/connect` | Type Enter to connect ServiceNow or Workday to your agent |
 | `/create` | Type Enter to create a new topic or workflow |
 | `/update` | Type Enter to modify an existing topic or workflow |

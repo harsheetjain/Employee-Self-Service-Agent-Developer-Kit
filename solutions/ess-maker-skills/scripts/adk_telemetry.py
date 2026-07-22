@@ -109,6 +109,9 @@ EVENT_FLIGHTCHECK_ERROR = "adk.flightcheck.error"
 #                              (the /discover command: full connector/knowledge
 #                              discovery + maker-intent capture, distinct from the
 #                              baseline inventory setup writes for free)
+#   plan                    -> scenario rollout planning (the /plan command:
+#                              inventory-enriched + Microsoft Learn-grounded
+#                              scenario plan)
 #   connect                 -> ServiceNow / Workday connection setup
 #   topic_*                 -> topic authoring (create / update / delete)
 #   workflow_*              -> workflow authoring (create / update / delete)
@@ -122,6 +125,7 @@ EVENT_FLIGHTCHECK_ERROR = "adk.flightcheck.error"
 ADK_CAPABILITIES = (
     "setup",
     "discover",
+    "plan",
     "connect",
     "topic_create",
     "topic_update",

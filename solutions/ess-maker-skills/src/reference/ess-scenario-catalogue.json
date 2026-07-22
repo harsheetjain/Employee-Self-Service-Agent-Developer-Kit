@@ -1,0 +1,1343 @@
+{
+  "schemaVersion": 1,
+  "description": "ESS scenario catalogue (data-only). Mirrors the ESS CoCreate Scenario Planner spec: 43 OOB scenarios + E1-E7 extensible, with machine-checkable dependency checks the planner evaluates against the discovered inventory. Keep in sync with the PM spec / ess-catalogue.md.",
+  "prioritization": {
+    "criteria": [
+      "Frequency + Ticket Deflection",
+      "Governance Safety",
+      "Connector Readiness",
+      "Change Management Complexity",
+      "Cross-Role Clarity"
+    ],
+    "principles": [
+      "Start high-confidence low-risk, then expand",
+      "Avoid heavy per-country logic early",
+      "MVP scope drives priority",
+      "Readiness checklists are go/no-go gates",
+      "Enable a category's reads before its writes"
+    ],
+    "defaultOrder": [
+      "Knowledge retrieval",
+      "Ticketing",
+      "Employee profile read/write",
+      "Agent handoff",
+      "Sensitive topics",
+      "Multi-language",
+      "Mobile access"
+    ]
+  },
+  "roles": [
+    "Maker (Copilot Studio)",
+    "Experience Manager (in-agent)",
+    "Admin"
+  ],
+  "categories": [
+    {
+      "id": "hr-knowledge-profile-read",
+      "name": "HR Knowledge & Profile (Read)",
+      "domain": "HR",
+      "persona": "Employee",
+      "catalogRange": "#1-19",
+      "connectors": [
+        "SharePoint",
+        "ServiceNow Graph",
+        "SAP SuccessFactors",
+        "Workday"
+      ],
+      "tier": 1
+    },
+    {
+      "id": "hr-profile-write",
+      "name": "HR Profile Update (Write)",
+      "domain": "HR",
+      "persona": "Employee",
+      "catalogRange": "#20-25",
+      "connectors": [
+        "Workday",
+        "SAP SuccessFactors"
+      ],
+      "tier": 3
+    },
+    {
+      "id": "manager-scenarios",
+      "name": "Manager Scenarios",
+      "domain": "HR",
+      "persona": "Manager",
+      "catalogRange": "#26-31",
+      "connectors": [
+        "SAP SuccessFactors"
+      ],
+      "tier": 3
+    },
+    {
+      "id": "hr-ticketing",
+      "name": "HR Ticketing",
+      "domain": "HR",
+      "persona": "Employee",
+      "catalogRange": "#32-34",
+      "connectors": [
+        "ServiceNow HRSD"
+      ],
+      "tier": 2
+    },
+    {
+      "id": "it-scenarios",
+      "name": "IT Scenarios",
+      "domain": "IT",
+      "persona": "Employee",
+      "catalogRange": "#35-41",
+      "connectors": [
+        "SharePoint",
+        "ServiceNow ITSM",
+        "Microsoft Self-Help"
+      ],
+      "tier": 2
+    },
+    {
+      "id": "handoff-scenarios",
+      "name": "Handoff Scenarios",
+      "domain": "Cross",
+      "persona": "Employee",
+      "catalogRange": "#42-43",
+      "connectors": [
+        "ServiceNow (Now Assist / live agent)"
+      ],
+      "tier": 4
+    }
+  ],
+  "scenarios": [
+    {
+      "num": 1,
+      "id": "hr-policy-lookup",
+      "name": "HR Policy Lookup",
+      "jtbd": "Retrieve HR policies from knowledge",
+      "category": "HR Knowledge & Profile (Read)",
+      "persona": "Employee",
+      "connector": "SharePoint",
+      "catalogRange": "#1",
+      "tier": 1,
+      "deflectionType": "knowledge confirmation",
+      "dependencies": [
+        {
+          "kind": "knowledge",
+          "need": "SharePoint knowledge source",
+          "check": {
+            "kind": "knowledge",
+            "anyOf": [
+              "SharePoint"
+            ]
+          }
+        }
+      ],
+      "flags": {}
+    },
+    {
+      "num": 2,
+      "id": "hr-knowledge-sn-kb",
+      "name": "HR Knowledge Retrieval (SN KB)",
+      "jtbd": "Retrieve HR KB articles",
+      "category": "HR Knowledge & Profile (Read)",
+      "persona": "Employee",
+      "connector": "ServiceNow Graph",
+      "catalogRange": "#2",
+      "tier": 1,
+      "deflectionType": "knowledge confirmation",
+      "dependencies": [
+        {
+          "kind": "knowledge",
+          "need": "ServiceNow Graph knowledge source",
+          "check": {
+            "kind": "knowledge",
+            "anyOf": [
+              "ServiceNowGraph"
+            ]
+          }
+        }
+      ],
+      "flags": {}
+    },
+    {
+      "num": 3,
+      "id": "hr-knowledge-sap",
+      "name": "HR Knowledge Retrieval (SAP SF)",
+      "jtbd": "Retrieve HR knowledge content",
+      "category": "HR Knowledge & Profile (Read)",
+      "persona": "Employee",
+      "connector": "SAP SuccessFactors",
+      "catalogRange": "#3",
+      "tier": 1,
+      "deflectionType": "knowledge confirmation",
+      "dependencies": [
+        {
+          "kind": "connector",
+          "need": "SAP SuccessFactors",
+          "check": {
+            "kind": "connector",
+            "anyOf": [
+              "sap"
+            ]
+          }
+        }
+      ],
+      "flags": {}
+    },
+    {
+      "num": 4,
+      "id": "view-employee-id",
+      "name": "View Employee ID",
+      "jtbd": "read employee id",
+      "category": "HR Knowledge & Profile (Read)",
+      "persona": "Employee",
+      "connector": "Workday",
+      "catalogRange": "#4",
+      "tier": 1,
+      "deflectionType": "pre-ticket resolution",
+      "dependencies": [
+        {
+          "kind": "connector",
+          "need": "Workday",
+          "check": {
+            "kind": "connector",
+            "anyOf": [
+              "workday"
+            ]
+          }
+        }
+      ],
+      "flags": {}
+    },
+    {
+      "num": 5,
+      "id": "view-job-details",
+      "name": "View Job Details",
+      "jtbd": "read job details",
+      "category": "HR Knowledge & Profile (Read)",
+      "persona": "Employee",
+      "connector": "Workday",
+      "catalogRange": "#5",
+      "tier": 1,
+      "deflectionType": "pre-ticket resolution",
+      "dependencies": [
+        {
+          "kind": "connector",
+          "need": "Workday",
+          "check": {
+            "kind": "connector",
+            "anyOf": [
+              "workday"
+            ]
+          }
+        }
+      ],
+      "flags": {}
+    },
+    {
+      "num": 6,
+      "id": "view-company-code",
+      "name": "View Company Code",
+      "jtbd": "read company code",
+      "category": "HR Knowledge & Profile (Read)",
+      "persona": "Employee",
+      "connector": "Workday",
+      "catalogRange": "#6",
+      "tier": 1,
+      "deflectionType": "pre-ticket resolution",
+      "dependencies": [
+        {
+          "kind": "connector",
+          "need": "Workday",
+          "check": {
+            "kind": "connector",
+            "anyOf": [
+              "workday"
+            ]
+          }
+        }
+      ],
+      "flags": {}
+    },
+    {
+      "num": 7,
+      "id": "view-cost-center",
+      "name": "View Cost Center",
+      "jtbd": "read cost center",
+      "category": "HR Knowledge & Profile (Read)",
+      "persona": "Employee",
+      "connector": "Workday",
+      "catalogRange": "#7",
+      "tier": 1,
+      "deflectionType": "pre-ticket resolution",
+      "dependencies": [
+        {
+          "kind": "connector",
+          "need": "Workday",
+          "check": {
+            "kind": "connector",
+            "anyOf": [
+              "workday"
+            ]
+          }
+        }
+      ],
+      "flags": {}
+    },
+    {
+      "num": 8,
+      "id": "view-hire-date",
+      "name": "View Hire Date",
+      "jtbd": "read hire date",
+      "category": "HR Knowledge & Profile (Read)",
+      "persona": "Employee",
+      "connector": "Workday",
+      "catalogRange": "#8",
+      "tier": 1,
+      "deflectionType": "pre-ticket resolution",
+      "dependencies": [
+        {
+          "kind": "connector",
+          "need": "Workday",
+          "check": {
+            "kind": "connector",
+            "anyOf": [
+              "workday"
+            ]
+          }
+        }
+      ],
+      "flags": {}
+    },
+    {
+      "num": 9,
+      "id": "view-compensation-ratio",
+      "name": "View Compensation Ratio",
+      "jtbd": "read compensation ratio",
+      "category": "HR Knowledge & Profile (Read)",
+      "persona": "Employee",
+      "connector": "Workday",
+      "catalogRange": "#9",
+      "tier": 1,
+      "deflectionType": "pre-ticket resolution",
+      "dependencies": [
+        {
+          "kind": "connector",
+          "need": "Workday",
+          "check": {
+            "kind": "connector",
+            "anyOf": [
+              "workday"
+            ]
+          }
+        }
+      ],
+      "flags": {}
+    },
+    {
+      "num": 10,
+      "id": "view-base-compensation",
+      "name": "View Base Compensation",
+      "jtbd": "read base compensation",
+      "category": "HR Knowledge & Profile (Read)",
+      "persona": "Employee",
+      "connector": "Workday",
+      "catalogRange": "#10",
+      "tier": 1,
+      "deflectionType": "pre-ticket resolution",
+      "dependencies": [
+        {
+          "kind": "connector",
+          "need": "Workday",
+          "check": {
+            "kind": "connector",
+            "anyOf": [
+              "workday"
+            ]
+          }
+        }
+      ],
+      "flags": {}
+    },
+    {
+      "num": 11,
+      "id": "view-service-anniversary",
+      "name": "View Service Anniversary",
+      "jtbd": "read service anniversary",
+      "category": "HR Knowledge & Profile (Read)",
+      "persona": "Employee",
+      "connector": "Workday",
+      "catalogRange": "#11",
+      "tier": 1,
+      "deflectionType": "pre-ticket resolution",
+      "dependencies": [
+        {
+          "kind": "connector",
+          "need": "Workday",
+          "check": {
+            "kind": "connector",
+            "anyOf": [
+              "workday"
+            ]
+          }
+        }
+      ],
+      "flags": {}
+    },
+    {
+      "num": 12,
+      "id": "view-employment-information",
+      "name": "View Employment Information",
+      "jtbd": "read employment information",
+      "category": "HR Knowledge & Profile (Read)",
+      "persona": "Employee",
+      "connector": "Workday",
+      "catalogRange": "#12",
+      "tier": 1,
+      "deflectionType": "pre-ticket resolution",
+      "dependencies": [
+        {
+          "kind": "connector",
+          "need": "Workday",
+          "check": {
+            "kind": "connector",
+            "anyOf": [
+              "workday"
+            ]
+          }
+        }
+      ],
+      "flags": {}
+    },
+    {
+      "num": 13,
+      "id": "view-contact-information",
+      "name": "View Contact Information",
+      "jtbd": "read contact information",
+      "category": "HR Knowledge & Profile (Read)",
+      "persona": "Employee",
+      "connector": "Workday",
+      "catalogRange": "#13",
+      "tier": 1,
+      "deflectionType": "pre-ticket resolution",
+      "dependencies": [
+        {
+          "kind": "connector",
+          "need": "Workday",
+          "check": {
+            "kind": "connector",
+            "anyOf": [
+              "workday"
+            ]
+          }
+        }
+      ],
+      "flags": {}
+    },
+    {
+      "num": 14,
+      "id": "view-emergency-contact",
+      "name": "View Emergency Contact",
+      "jtbd": "read emergency contact",
+      "category": "HR Knowledge & Profile (Read)",
+      "persona": "Employee",
+      "connector": "Workday",
+      "catalogRange": "#14",
+      "tier": 1,
+      "deflectionType": "pre-ticket resolution",
+      "dependencies": [
+        {
+          "kind": "connector",
+          "need": "Workday",
+          "check": {
+            "kind": "connector",
+            "anyOf": [
+              "workday"
+            ]
+          }
+        }
+      ],
+      "flags": {}
+    },
+    {
+      "num": 15,
+      "id": "view-national-ids",
+      "name": "View National IDs",
+      "jtbd": "read national ids",
+      "category": "HR Knowledge & Profile (Read)",
+      "persona": "Employee",
+      "connector": "Workday",
+      "catalogRange": "#15",
+      "tier": 1,
+      "deflectionType": "pre-ticket resolution",
+      "dependencies": [
+        {
+          "kind": "connector",
+          "need": "Workday",
+          "check": {
+            "kind": "connector",
+            "anyOf": [
+              "workday"
+            ]
+          }
+        }
+      ],
+      "flags": {}
+    },
+    {
+      "num": 16,
+      "id": "view-passports",
+      "name": "View Passports",
+      "jtbd": "read passports",
+      "category": "HR Knowledge & Profile (Read)",
+      "persona": "Employee",
+      "connector": "Workday",
+      "catalogRange": "#16",
+      "tier": 1,
+      "deflectionType": "pre-ticket resolution",
+      "dependencies": [
+        {
+          "kind": "connector",
+          "need": "Workday",
+          "check": {
+            "kind": "connector",
+            "anyOf": [
+              "workday"
+            ]
+          }
+        }
+      ],
+      "flags": {}
+    },
+    {
+      "num": 17,
+      "id": "view-visas",
+      "name": "View Visas",
+      "jtbd": "read visas",
+      "category": "HR Knowledge & Profile (Read)",
+      "persona": "Employee",
+      "connector": "Workday",
+      "catalogRange": "#17",
+      "tier": 1,
+      "deflectionType": "pre-ticket resolution",
+      "dependencies": [
+        {
+          "kind": "connector",
+          "need": "Workday",
+          "check": {
+            "kind": "connector",
+            "anyOf": [
+              "workday"
+            ]
+          }
+        }
+      ],
+      "flags": {}
+    },
+    {
+      "num": 18,
+      "id": "view-certifications",
+      "name": "View Certifications",
+      "jtbd": "read certifications",
+      "category": "HR Knowledge & Profile (Read)",
+      "persona": "Employee",
+      "connector": "Workday",
+      "catalogRange": "#18",
+      "tier": 1,
+      "deflectionType": "pre-ticket resolution",
+      "dependencies": [
+        {
+          "kind": "connector",
+          "need": "Workday",
+          "check": {
+            "kind": "connector",
+            "anyOf": [
+              "workday"
+            ]
+          }
+        }
+      ],
+      "flags": {}
+    },
+    {
+      "num": 19,
+      "id": "view-language-information",
+      "name": "View Language Information",
+      "jtbd": "read language information",
+      "category": "HR Knowledge & Profile (Read)",
+      "persona": "Employee",
+      "connector": "Workday",
+      "catalogRange": "#19",
+      "tier": 1,
+      "deflectionType": "pre-ticket resolution",
+      "dependencies": [
+        {
+          "kind": "connector",
+          "need": "Workday",
+          "check": {
+            "kind": "connector",
+            "anyOf": [
+              "workday"
+            ]
+          }
+        }
+      ],
+      "flags": {}
+    },
+    {
+      "num": 20,
+      "id": "update-email",
+      "name": "Update Email Address",
+      "jtbd": "Update employee email",
+      "category": "HR Profile Update (Write)",
+      "persona": "Employee",
+      "connector": "Workday",
+      "catalogRange": "#20",
+      "tier": 3,
+      "deflectionType": "guided self-service",
+      "dependencies": [
+        {
+          "kind": "connector",
+          "need": "Workday",
+          "check": {
+            "kind": "connector",
+            "anyOf": [
+              "workday"
+            ]
+          }
+        },
+        {
+          "kind": "governance",
+          "need": "HR-admin governance sign-off",
+          "check": {
+            "kind": "manual"
+          }
+        }
+      ],
+      "flags": {}
+    },
+    {
+      "num": 21,
+      "id": "update-phone",
+      "name": "Update Phone Number",
+      "jtbd": "Update employee phone",
+      "category": "HR Profile Update (Write)",
+      "persona": "Employee",
+      "connector": "Workday",
+      "catalogRange": "#21",
+      "tier": 3,
+      "deflectionType": "guided self-service",
+      "dependencies": [
+        {
+          "kind": "connector",
+          "need": "Workday",
+          "check": {
+            "kind": "connector",
+            "anyOf": [
+              "workday"
+            ]
+          }
+        },
+        {
+          "kind": "governance",
+          "need": "HR-admin governance sign-off",
+          "check": {
+            "kind": "manual"
+          }
+        }
+      ],
+      "flags": {}
+    },
+    {
+      "num": 22,
+      "id": "update-preferred-name",
+      "name": "Update Preferred Name",
+      "jtbd": "Update preferred name",
+      "category": "HR Profile Update (Write)",
+      "persona": "Employee",
+      "connector": "SAP SuccessFactors",
+      "catalogRange": "#22",
+      "tier": 3,
+      "deflectionType": "guided self-service",
+      "dependencies": [
+        {
+          "kind": "connector",
+          "need": "SAP SuccessFactors",
+          "check": {
+            "kind": "connector",
+            "anyOf": [
+              "sap"
+            ]
+          }
+        },
+        {
+          "kind": "governance",
+          "need": "HR-admin governance sign-off",
+          "check": {
+            "kind": "manual"
+          }
+        }
+      ],
+      "flags": {}
+    },
+    {
+      "num": 23,
+      "id": "update-emergency-contact",
+      "name": "Update Emergency Contact",
+      "jtbd": "Update emergency contact",
+      "category": "HR Profile Update (Write)",
+      "persona": "Employee",
+      "connector": "SAP SuccessFactors",
+      "catalogRange": "#23",
+      "tier": 3,
+      "deflectionType": "guided self-service",
+      "dependencies": [
+        {
+          "kind": "connector",
+          "need": "SAP SuccessFactors",
+          "check": {
+            "kind": "connector",
+            "anyOf": [
+              "sap"
+            ]
+          }
+        },
+        {
+          "kind": "governance",
+          "need": "HR-admin governance sign-off",
+          "check": {
+            "kind": "manual"
+          }
+        }
+      ],
+      "flags": {}
+    },
+    {
+      "num": 24,
+      "id": "update-veteran-info",
+      "name": "Update Veteran Information",
+      "jtbd": "Update veteran info (US only)",
+      "category": "HR Profile Update (Write)",
+      "persona": "Employee",
+      "connector": "SAP SuccessFactors",
+      "catalogRange": "#24",
+      "tier": 3,
+      "deflectionType": "guided self-service",
+      "dependencies": [
+        {
+          "kind": "connector",
+          "need": "SAP SuccessFactors",
+          "check": {
+            "kind": "connector",
+            "anyOf": [
+              "sap"
+            ]
+          }
+        },
+        {
+          "kind": "governance",
+          "need": "HR-admin governance sign-off",
+          "check": {
+            "kind": "manual"
+          }
+        }
+      ],
+      "flags": {
+        "countrySpecific": "US only"
+      }
+    },
+    {
+      "num": 25,
+      "id": "update-race-ethnicity",
+      "name": "Update Race / Ethnicity",
+      "jtbd": "Update race/ethnicity (US only)",
+      "category": "HR Profile Update (Write)",
+      "persona": "Employee",
+      "connector": "SAP SuccessFactors",
+      "catalogRange": "#25",
+      "tier": 3,
+      "deflectionType": "guided self-service",
+      "dependencies": [
+        {
+          "kind": "connector",
+          "need": "SAP SuccessFactors",
+          "check": {
+            "kind": "connector",
+            "anyOf": [
+              "sap"
+            ]
+          }
+        },
+        {
+          "kind": "governance",
+          "need": "HR-admin governance sign-off",
+          "check": {
+            "kind": "manual"
+          }
+        }
+      ],
+      "flags": {
+        "countrySpecific": "US only"
+      }
+    },
+    {
+      "num": 26,
+      "id": "view-direct-reports-job-details",
+      "name": "View Direct Reports Job Details",
+      "jtbd": "view direct reports job details",
+      "category": "Manager Scenarios",
+      "persona": "Manager",
+      "connector": "SAP SuccessFactors",
+      "catalogRange": "#26",
+      "tier": 3,
+      "deflectionType": "decision closure",
+      "dependencies": [
+        {
+          "kind": "connector",
+          "need": "SAP SuccessFactors",
+          "check": {
+            "kind": "connector",
+            "anyOf": [
+              "sap"
+            ]
+          }
+        },
+        {
+          "kind": "context",
+          "need": "manager context (ESS_UserContext_Is_Manager)",
+          "check": {
+            "kind": "manual"
+          }
+        }
+      ],
+      "flags": {}
+    },
+    {
+      "num": 27,
+      "id": "view-direct-reports-cost-center",
+      "name": "View Direct Reports Cost Center",
+      "jtbd": "view direct reports cost center",
+      "category": "Manager Scenarios",
+      "persona": "Manager",
+      "connector": "SAP SuccessFactors",
+      "catalogRange": "#27",
+      "tier": 3,
+      "deflectionType": "decision closure",
+      "dependencies": [
+        {
+          "kind": "connector",
+          "need": "SAP SuccessFactors",
+          "check": {
+            "kind": "connector",
+            "anyOf": [
+              "sap"
+            ]
+          }
+        },
+        {
+          "kind": "context",
+          "need": "manager context (ESS_UserContext_Is_Manager)",
+          "check": {
+            "kind": "manual"
+          }
+        }
+      ],
+      "flags": {}
+    },
+    {
+      "num": 28,
+      "id": "view-direct-reports-company-code",
+      "name": "View Direct Reports Company Code",
+      "jtbd": "view direct reports company code",
+      "category": "Manager Scenarios",
+      "persona": "Manager",
+      "connector": "SAP SuccessFactors",
+      "catalogRange": "#28",
+      "tier": 3,
+      "deflectionType": "decision closure",
+      "dependencies": [
+        {
+          "kind": "connector",
+          "need": "SAP SuccessFactors",
+          "check": {
+            "kind": "connector",
+            "anyOf": [
+              "sap"
+            ]
+          }
+        },
+        {
+          "kind": "context",
+          "need": "manager context (ESS_UserContext_Is_Manager)",
+          "check": {
+            "kind": "manual"
+          }
+        }
+      ],
+      "flags": {}
+    },
+    {
+      "num": 29,
+      "id": "view-direct-reports-service-anniversary",
+      "name": "View Direct Reports Service Anniversary",
+      "jtbd": "view direct reports service anniversary",
+      "category": "Manager Scenarios",
+      "persona": "Manager",
+      "connector": "SAP SuccessFactors",
+      "catalogRange": "#29",
+      "tier": 3,
+      "deflectionType": "decision closure",
+      "dependencies": [
+        {
+          "kind": "connector",
+          "need": "SAP SuccessFactors",
+          "check": {
+            "kind": "connector",
+            "anyOf": [
+              "sap"
+            ]
+          }
+        },
+        {
+          "kind": "context",
+          "need": "manager context (ESS_UserContext_Is_Manager)",
+          "check": {
+            "kind": "manual"
+          }
+        }
+      ],
+      "flags": {}
+    },
+    {
+      "num": 30,
+      "id": "update-directs-cost-center",
+      "name": "Update Directs Cost Center",
+      "jtbd": "update directs cost center",
+      "category": "Manager Scenarios",
+      "persona": "Manager",
+      "connector": "SAP SuccessFactors",
+      "catalogRange": "#30",
+      "tier": 3,
+      "deflectionType": "decision closure",
+      "dependencies": [
+        {
+          "kind": "connector",
+          "need": "SAP SuccessFactors",
+          "check": {
+            "kind": "connector",
+            "anyOf": [
+              "sap"
+            ]
+          }
+        },
+        {
+          "kind": "context",
+          "need": "manager context (ESS_UserContext_Is_Manager)",
+          "check": {
+            "kind": "manual"
+          }
+        },
+        {
+          "kind": "governance",
+          "need": "manager write permissions",
+          "check": {
+            "kind": "manual"
+          }
+        }
+      ],
+      "flags": {}
+    },
+    {
+      "num": 31,
+      "id": "update-directs-job-title",
+      "name": "Update Directs Job Title",
+      "jtbd": "update directs job title",
+      "category": "Manager Scenarios",
+      "persona": "Manager",
+      "connector": "SAP SuccessFactors",
+      "catalogRange": "#31",
+      "tier": 3,
+      "deflectionType": "decision closure",
+      "dependencies": [
+        {
+          "kind": "connector",
+          "need": "SAP SuccessFactors",
+          "check": {
+            "kind": "connector",
+            "anyOf": [
+              "sap"
+            ]
+          }
+        },
+        {
+          "kind": "context",
+          "need": "manager context (ESS_UserContext_Is_Manager)",
+          "check": {
+            "kind": "manual"
+          }
+        },
+        {
+          "kind": "governance",
+          "need": "manager write permissions",
+          "check": {
+            "kind": "manual"
+          }
+        }
+      ],
+      "flags": {}
+    },
+    {
+      "num": 32,
+      "id": "read-hr-tickets",
+      "name": "Read HR Tickets",
+      "jtbd": "View existing HR tickets",
+      "category": "HR Ticketing",
+      "persona": "Employee",
+      "connector": "ServiceNow HRSD",
+      "catalogRange": "#32",
+      "tier": 2,
+      "deflectionType": "pre-ticket resolution",
+      "dependencies": [
+        {
+          "kind": "servicenow",
+          "need": "ServiceNow HRSD",
+          "check": {
+            "kind": "servicenow",
+            "module": "hrsd"
+          }
+        }
+      ],
+      "flags": {}
+    },
+    {
+      "num": 33,
+      "id": "create-hr-ticket",
+      "name": "Create HR Ticket",
+      "jtbd": "Create HR support ticket",
+      "category": "HR Ticketing",
+      "persona": "Employee",
+      "connector": "ServiceNow HRSD",
+      "catalogRange": "#33",
+      "tier": 2,
+      "deflectionType": "pre-ticket resolution",
+      "dependencies": [
+        {
+          "kind": "servicenow",
+          "need": "ServiceNow HRSD",
+          "check": {
+            "kind": "servicenow",
+            "module": "hrsd"
+          }
+        }
+      ],
+      "flags": {}
+    },
+    {
+      "num": 34,
+      "id": "update-hr-case",
+      "name": "Update HR Case",
+      "jtbd": "Update an existing HR case",
+      "category": "HR Ticketing",
+      "persona": "Employee",
+      "connector": "ServiceNow HRSD",
+      "catalogRange": "#34",
+      "tier": 2,
+      "deflectionType": "pre-ticket resolution",
+      "dependencies": [
+        {
+          "kind": "servicenow",
+          "need": "ServiceNow HRSD",
+          "check": {
+            "kind": "servicenow",
+            "module": "hrsd"
+          }
+        }
+      ],
+      "flags": {}
+    },
+    {
+      "num": 35,
+      "id": "it-knowledge",
+      "name": "IT Knowledge Retrieval",
+      "jtbd": "Retrieve IT KB content",
+      "category": "IT Scenarios",
+      "persona": "Employee",
+      "connector": "SharePoint",
+      "catalogRange": "#35",
+      "tier": 1,
+      "deflectionType": "knowledge confirmation",
+      "dependencies": [
+        {
+          "kind": "knowledge",
+          "need": "SharePoint knowledge source or ServiceNow Graph knowledge source",
+          "check": {
+            "kind": "knowledge",
+            "anyOf": [
+              "SharePoint",
+              "ServiceNowGraph"
+            ]
+          }
+        }
+      ],
+      "flags": {}
+    },
+    {
+      "num": 36,
+      "id": "read-it-tickets",
+      "name": "Read IT Tickets",
+      "jtbd": "View IT tickets",
+      "category": "IT Scenarios",
+      "persona": "Employee",
+      "connector": "ServiceNow ITSM",
+      "catalogRange": "#36",
+      "tier": 2,
+      "deflectionType": "pre-ticket resolution",
+      "dependencies": [
+        {
+          "kind": "servicenow",
+          "need": "ServiceNow ITSM",
+          "check": {
+            "kind": "servicenow",
+            "module": "itsm"
+          }
+        }
+      ],
+      "flags": {}
+    },
+    {
+      "num": 37,
+      "id": "create-it-ticket",
+      "name": "Create IT Ticket",
+      "jtbd": "Create IT ticket",
+      "category": "IT Scenarios",
+      "persona": "Employee",
+      "connector": "ServiceNow ITSM",
+      "catalogRange": "#37",
+      "tier": 2,
+      "deflectionType": "pre-ticket resolution",
+      "dependencies": [
+        {
+          "kind": "servicenow",
+          "need": "ServiceNow ITSM",
+          "check": {
+            "kind": "servicenow",
+            "module": "itsm"
+          }
+        }
+      ],
+      "flags": {}
+    },
+    {
+      "num": 38,
+      "id": "update-it-ticket",
+      "name": "Update IT Ticket",
+      "jtbd": "Update IT ticket",
+      "category": "IT Scenarios",
+      "persona": "Employee",
+      "connector": "ServiceNow ITSM",
+      "catalogRange": "#38",
+      "tier": 2,
+      "deflectionType": "pre-ticket resolution",
+      "dependencies": [
+        {
+          "kind": "servicenow",
+          "need": "ServiceNow ITSM",
+          "check": {
+            "kind": "servicenow",
+            "module": "itsm"
+          }
+        }
+      ],
+      "flags": {}
+    },
+    {
+      "num": 39,
+      "id": "windows-troubleshooting",
+      "name": "Windows Troubleshooting",
+      "jtbd": "Run Windows troubleshooters",
+      "category": "IT Scenarios",
+      "persona": "Employee",
+      "connector": "Microsoft Self-Help",
+      "catalogRange": "#39",
+      "tier": 1,
+      "deflectionType": "guided self-service",
+      "dependencies": [
+        {
+          "kind": "builtin",
+          "need": "Microsoft Self-Help",
+          "check": {
+            "kind": "builtin",
+            "name": "Microsoft Self-Help"
+          }
+        }
+      ],
+      "flags": {}
+    },
+    {
+      "num": 40,
+      "id": "m365-support",
+      "name": "M365 Support",
+      "jtbd": "M365 self-help support",
+      "category": "IT Scenarios",
+      "persona": "Employee",
+      "connector": "Microsoft Self-Help",
+      "catalogRange": "#40",
+      "tier": 1,
+      "deflectionType": "guided self-service",
+      "dependencies": [
+        {
+          "kind": "builtin",
+          "need": "Microsoft Self-Help",
+          "check": {
+            "kind": "builtin",
+            "name": "Microsoft Self-Help"
+          }
+        }
+      ],
+      "flags": {}
+    },
+    {
+      "num": 41,
+      "id": "it-handoff-live",
+      "name": "IT Ticket Handoff to Live Agent",
+      "jtbd": "Handoff to ServiceNow live agent",
+      "category": "IT Scenarios",
+      "persona": "Employee",
+      "connector": "ServiceNow",
+      "catalogRange": "#41",
+      "tier": 4,
+      "deflectionType": "decision closure",
+      "dependencies": [
+        {
+          "kind": "servicenow",
+          "need": "ServiceNow live agent / Now Assist",
+          "check": {
+            "kind": "servicenow",
+            "module": "handoff"
+          }
+        },
+        {
+          "kind": "scenario-edge",
+          "need": "a Ticketing category (Handoff requires Ticketing)",
+          "check": {
+            "kind": "scenario-edge",
+            "needAnyCategory": [
+              "HR Ticketing",
+              "IT Scenarios"
+            ]
+          }
+        }
+      ],
+      "flags": {}
+    },
+    {
+      "num": 42,
+      "id": "handoff-now-assist",
+      "name": "Handoff to ServiceNow Now Assist",
+      "jtbd": "Handoff to Now Assist agent",
+      "category": "Handoff Scenarios",
+      "persona": "Employee",
+      "connector": "ServiceNow",
+      "catalogRange": "#42",
+      "tier": 4,
+      "deflectionType": "decision closure",
+      "dependencies": [
+        {
+          "kind": "servicenow",
+          "need": "ServiceNow live agent / Now Assist",
+          "check": {
+            "kind": "servicenow",
+            "module": "handoff"
+          }
+        },
+        {
+          "kind": "scenario-edge",
+          "need": "a Ticketing category (Handoff requires Ticketing)",
+          "check": {
+            "kind": "scenario-edge",
+            "needAnyCategory": [
+              "HR Ticketing",
+              "IT Scenarios"
+            ]
+          }
+        }
+      ],
+      "flags": {}
+    },
+    {
+      "num": 43,
+      "id": "handoff-live-agent",
+      "name": "Handoff to Live Agent",
+      "jtbd": "Handoff to ServiceNow live agent",
+      "category": "Handoff Scenarios",
+      "persona": "Employee",
+      "connector": "ServiceNow",
+      "catalogRange": "#43",
+      "tier": 4,
+      "deflectionType": "decision closure",
+      "dependencies": [
+        {
+          "kind": "servicenow",
+          "need": "ServiceNow live agent / Now Assist",
+          "check": {
+            "kind": "servicenow",
+            "module": "handoff"
+          }
+        },
+        {
+          "kind": "scenario-edge",
+          "need": "a Ticketing category (Handoff requires Ticketing)",
+          "check": {
+            "kind": "scenario-edge",
+            "needAnyCategory": [
+              "HR Ticketing",
+              "IT Scenarios"
+            ]
+          }
+        }
+      ],
+      "flags": {}
+    }
+  ],
+  "extensible": [
+    {
+      "id": "E1",
+      "name": "Request Time Off",
+      "category": "HR",
+      "extensionType": "Custom topic + connector"
+    },
+    {
+      "id": "E2",
+      "name": "Service Anniversaries",
+      "category": "HR",
+      "extensionType": "Experience-level scenario"
+    },
+    {
+      "id": "E3",
+      "name": "Custom HR Policy Flows",
+      "category": "HR",
+      "extensionType": "Custom topic + knowledge"
+    },
+    {
+      "id": "E4",
+      "name": "Advanced IT Request Workflows",
+      "category": "IT",
+      "extensionType": "Custom connector workflow"
+    },
+    {
+      "id": "E5",
+      "name": "Experience Customization",
+      "category": "Cross",
+      "extensionType": "Experience Manager config"
+    },
+    {
+      "id": "E6",
+      "name": "Location-Aware Eligibility",
+      "category": "HR",
+      "extensionType": "Custom topic logic"
+    },
+    {
+      "id": "E7",
+      "name": "Custom Connector Integration",
+      "category": "Cross",
+      "extensionType": "Custom connector"
+    }
+  ]
+}

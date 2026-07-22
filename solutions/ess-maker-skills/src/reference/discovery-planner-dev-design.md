@@ -402,6 +402,23 @@ plan.getMyTasks(status?) / plan.getTasksForRole(role) -> tasks[{taskId, required
 
 Resources: `inventory://snapshot`, `inventory://capability-matrix`, `inventory://schema`, `plan://catalog`, `plan://project/{id}`.
 
+> **As-built (verified against the WeveNova `WeveNovaB2` MCP tunnel).** The sketches
+> above are the target surface; the live MCP today exposes a smaller, concrete set
+> that `scripts/planner/wevenova.py` binds to:
+>
+> | Sketch | Live tool | Note |
+> |--------|-----------|------|
+> | `inventory.upsertItem` | `upsert_tenant_inventory` | `{inventoryItem:{kind, naturalKey, displayName, source, attributes}}`; `attributes` is a JSON-**string**. |
+> | `inventory.get` (presence tier) | `get_tenant_inventory_presence` | redacted view for non-admin read. |
+> | `inventory.get` (full) / list | `list_tenant_inventory` | OData `$filter`; id = `{kind}:{naturalKey}`. |
+> | `inventory.retire` | `retire_tenant_inventory` | by `{kind, naturalKey}`. |
+> | `plan.getOrCreateProject` | `create_agent_project` | `{project:{name}}`. |
+> | `plan.createPlan` / `plan.patchPlan` | `create_agent_plan` | `{projectId, plan:{acceptanceCriteria[], tasks[...]}}` — **no `Scenarios[]` field yet** (D9 still open), so scenarios are encoded as acceptance criteria + role-tagged tasks. |
+>
+> `initialize` / `tools/list` are unauthenticated; `tools/call` requires an
+> authorized caller (the VS Code MCP runtime supplies it). See `planner-contract.md`
+> for the full transport + auth notes.
+
 ---
 
 ## Appendix B — a worked example: the plan that reprioritizes itself

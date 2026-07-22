@@ -18,7 +18,24 @@ flips any planned systems that are now connected to "configured."
 
 ---
 
-## 3.2 — Show the finished inventory
+## 3.2 — Persist to WeveNova (optional)
+
+The inventory is always saved locally. When the WeveNova agent-configuration MCP
+is wired up, also push it to the tenant so the planner and Cocreate can reuse it:
+
+- **VS Code runtime (preferred):** the authorized `weve-agentconfig` MCP server
+  can upsert each resource with `upsert_tenant_inventory` (one call per item:
+  connectors, connections, extension packs, knowledge sources, template configs).
+- **CLI:** with `WEVENOVA_MCP_URL` set, run `python scripts/discover_inventory.py --sync`.
+  Headless CLI writes are unauthenticated and may return "not authorized" — that's
+  expected; the inventory still stays intact in `workspace/inventory/`.
+
+If WeveNova isn't configured, skip this silently — the inventory stays local and
+everything downstream still works.
+
+---
+
+## 3.3 — Show the finished inventory
 
 Read `workspace/inventory/inventory.json` and present a short wrap-up composed
 from its fields:

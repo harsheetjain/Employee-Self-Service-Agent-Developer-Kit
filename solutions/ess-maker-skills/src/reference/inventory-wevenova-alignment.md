@@ -27,6 +27,14 @@ purely on the read side (§6).
 
 ## 2. TL;DR — the delta we need from the backend
 
+> **As-built pointer.** The live `WeveNovaB2` MCP already exposes this write path as
+> **`upsert_tenant_inventory({inventoryItem:{kind, naturalKey, displayName, source, attributes}})`**
+> (plus `get_tenant_inventory_presence`, `list_tenant_inventory`, `retire_tenant_inventory`).
+> The conceptual `upsertInventoryItem(...)` used throughout this doc maps to that
+> tool; `provenance`/`validationStatus` ride inside the `attributes` JSON-string
+> until first-class fields land. `scripts/planner/wevenova.py` binds to the live
+> names — see `planner-contract.md`.
+
 1. **Accept ADK auto-discovery as an ingestion source** through the existing
    `upsertInventoryItem(kind, naturalKey, attributes, provenance)` with
    `provenance.assertedVia = "adk-discover"` and `validationStatus = Confirmed`

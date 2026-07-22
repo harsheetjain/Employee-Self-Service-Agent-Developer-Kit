@@ -7,7 +7,7 @@ built as a deterministic engine (Python) with a reasoning skill (`/plan`) on top
 - **Producer:** `scripts/build_plan.py` (orchestrates the `scripts/planner/` package).
 - **Canonical local artifact:** `workspace/plan/plan.json` (+ `summary.md`).
 - **Catalogue (data):** `src/reference/ess-scenario-catalogue.json`.
-- **Source of truth (target):** the WeveNova Plan MCP; local staging until it lands.
+- **Source of truth (target):** the WeveNova agent-configuration MCP; local staging until it lands.
 
 ## Pieces
 
@@ -16,7 +16,7 @@ built as a deterministic engine (Python) with a reasoning skill (`/plan`) on top
 | `planner/catalogue.py` | Load the scenario catalogue; map goals (focus + named systems) to scenarios. |
 | `planner/plan_model.py` | The `Plan` + `Scenarios[]` data model, IO, and summary render. |
 | `planner/readiness.py` | Evaluate each `dependencies[].check` against the inventory; roll up the `readiness` triplet. The living-plan core. |
-| `planner/wevenova.py` | Config-gated, best-effort sync to the WeveNova Plan MCP (dev tunnel). |
+| `planner/wevenova.py` | Config-gated, best-effort, fail-open sync to the WeveNova agent-configuration MCP (plan + tenant inventory). |
 | `build_plan.py` | CLI: `--build` / `--enrich` / `--suggest` / `--sync` / `--print` / `--selftest`. |
 
 ## The plan (matches the scenario-list one-pager)
@@ -69,20 +69,46 @@ Status values: `met`, `at-risk` (present but unhealthy/unverified), `planned`
   manager context) met.
 - `production` = a manual go-live flag the owner sets (default false).
 
-## WeveNova sync (dev tunnel)
+## WeveNova sync (agent-configuration MCP)
 
-`wevenova.py` syncs the plan to a **local dev-tunnel MCP with no auth** when
-configured, and is a no-op otherwise (the plan stays in `workspace/plan/`).
+`wevenova.py` is a **config-gated, fail-open** client for the WeveNova
+agent-configuration MCP (`WeveNovaB2`). It syncs when `WEVENOVA_MCP_URL` is set
+and is a pure no-op otherwise — the plan and inventory always keep working from
+their local `workspace/` mirrors.
 
 ```
-WEVENOVA_MCP_URL    the dev-tunnel MCP endpoint (streamable-HTTP JSON-RPC)
-WEVENOVA_PLAN_TOOL  the persist tool (default plan.upsertPlan); the plan is passed as `plan`
+WEVENOVA_MCP_URL       the MCP endpoint (streamable-HTTP JSON-RPC 2.0, SSE-framed).
+                       Unset / "off" => local-only. For local dev, point it at the
+                       dev tunnel; the VS Code runtime uses the `weve-agentconfig`
+                       entry in `.vscode/mcp.json` instead (which also supplies auth).
+WEVENOVA_PROJECT_NAME  the Cocreate project/experience name (default "Employee Self Serve").
 ```
 
-Expected of the MCP: JSON-RPC 2.0 `initialize` + `tools/call`, and a plan-persist
-tool that upserts a `Plan` with an embedded `scenarios[]` list and returns the
-stored id/version. It's fail-open: a tunnel that's down or shaped differently
-returns `(False, message)` and never crashes the planner.
+**Transport.** JSON-RPC 2.0 over streamable-HTTP. Responses may arrive as an SSE
+stream (`event: message\ndata: {json}`); `_parse_body` handles both raw JSON and
+SSE. `initialize` / `tools/list` are reachable unauthenticated, but `tools/call`
+requires an authorized caller — headless calls without a bearer token get
+`"The caller is not authorized to perform this request"`. The VS Code MCP runtime
+supplies that auth; the client is fail-open, so an unauthorized/absent/reshaped
+endpoint returns `(False, message)` and never crashes the planner.
+
+**Real tool contract (verified against the tunnel).**
+
+| Purpose | Tool | Args (shape) |
+|---------|------|-------------|
+| Plan → project | `create_agent_project` | `{project:{name}}` — name is the project (`Employee Self Serve`). |
+| Plan → plan+tasks | `create_agent_plan` | `{projectId, plan:{acceptanceCriteria[], tasks[{title,description,assignedToId}]}}`. |
+| Inventory upsert | `upsert_tenant_inventory` | `{inventoryItem:{kind, naturalKey, displayName, source, attributes}}` — `attributes` is a JSON-**string**. |
+| Inventory read (redacted) | `get_tenant_inventory_presence` | `{}` |
+| Inventory list | `list_tenant_inventory` | OData `$filter`; item id is `{kind}:{naturalKey}`. |
+| Inventory retire | `retire_tenant_inventory` | by `{kind, naturalKey}`. |
+
+> **Impedance note.** The current WeveNova `Plan` has **no `Scenarios[]` field** —
+> only `acceptanceCriteria[]` + `tasks[]`. `wevenova.py` therefore *encodes* the
+> local `scenarios[]` into acceptance criteria + role-assigned tasks
+> (`_plan_acceptance_criteria` / `_plan_tasks`) rather than a 1:1 upsert. Inventory
+> `kind`s map to: Environment / EntraApp / Connector / Connection / SharePointSite /
+> KnowledgeSource / ExtensionPack / ScenarioTemplate.
 
 ## Living-plan loop
 

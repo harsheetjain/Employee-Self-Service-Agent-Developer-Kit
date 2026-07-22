@@ -3,7 +3,7 @@
 Produces a **scenario rollout plan for the maker's ESS agent** that is (1)
 **enriched** by the tenant inventory (from `/discover`), (2) **grounded on
 Microsoft Learn** for setup detail, and (3) **persisted** as a living
-`Plan.Scenarios[]` list (locally, and to the WeveNova Plan MCP when configured).
+`Plan.Scenarios[]` list (locally, and to the WeveNova agent-configuration MCP when configured).
 
 A deterministic engine does the scoping and readiness math; your job is the
 reasoning around it — gather goals, run the engine, ground the setup steps on
@@ -132,10 +132,14 @@ Keep it scannable. Do not expose file names, JSON, or tool names in the prose.
 
 ## Step 5 — Persist and refine
 
-- **Persist to WeveNova** if the Plan MCP is available (a dev tunnel sets
-  `WEVENOVA_MCP_URL`): run `python scripts/build_plan.py --sync`, or call the
-  WeveNova plan tool directly. If it isn't configured, the plan stays in
-  `workspace/plan/` — say so plainly.
+- **Persist to WeveNova** when the agent-configuration MCP is wired up. Two paths:
+  - **VS Code runtime (preferred):** the `weve-agentconfig` MCP server in
+    `.vscode/mcp.json` is authorized, so it can create the project, plan, and
+    tasks (`create_agent_project` → `create_agent_plan`) directly.
+  - **CLI:** with `WEVENOVA_MCP_URL` set, run `python scripts/build_plan.py --sync`.
+    Headless CLI calls are unauthenticated, so writes may return "not authorized"
+    — that's expected; the plan still stays safe in `workspace/plan/`.
+  If WeveNova isn't configured at all, the plan stays local — say so plainly.
 - **Refine on request.** If the maker changes scope, re-run `--build` (or patch
   and `--enrich`). Disabling a scenario keeps it (disabled), so "add it back
   later" is a re-enable.

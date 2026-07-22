@@ -135,7 +135,11 @@ def cmd_sync(args) -> int:
     if plan is None:
         print("No plan yet - run --build first.")
         return 1
-    return 0 if _do_sync(plan) else 2
+    ok, configured = _do_sync(plan)
+    if ok:
+        return 0
+    # Local-only (WeveNova not wired up) is benign; only a real failure is exit 2.
+    return 0 if not configured else 2
 
 
 def cmd_print(args) -> int:
@@ -147,10 +151,12 @@ def cmd_print(args) -> int:
     return 0
 
 
-def _do_sync(plan: dict) -> bool:
+def _do_sync(plan: dict) -> tuple[bool, bool]:
+    """Push the plan to WeveNova. Returns ``(ok, configured)``."""
+    configured = wevenova.is_configured()
     ok, msg = wevenova.sync_plan(plan)
     print(("WeveNova: " if ok else "WeveNova (skipped): ") + msg)
-    return ok
+    return ok, configured
 
 
 def _print_headline(plan: dict) -> None:
@@ -242,9 +248,13 @@ def cmd_selftest(args) -> int:
         check(loaded is not None and loaded["schemaVersion"] == plan_model.SCHEMA_VERSION, "save/load round-trip")
         check(os.path.exists(os.path.join(d, "summary.md")), "summary.md written")
 
-    # wevenova is a no-op when unconfigured (must never raise)
-    ok, msg = wevenova.sync_plan(plan)
-    check(ok is False and "not configured" in msg, "WeveNova sync no-ops when unconfigured")
+    # wevenova is a no-op when explicitly disabled (must never raise)
+    os.environ["WEVENOVA_MCP_URL"] = "off"
+    try:
+        ok, msg = wevenova.sync_plan(plan)
+    finally:
+        del os.environ["WEVENOVA_MCP_URL"]
+    check(ok is False and "not configured" in msg, "WeveNova sync no-ops when disabled")
 
     if failures:
         print("SELFTEST: FAIL")

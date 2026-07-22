@@ -43,7 +43,8 @@ import sys
 
 # Make sibling modules importable whether run as `python scripts/discover_inventory.py`
 # (cwd = repo root) or imported from within scripts/.
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, HERE)
 
 from discovery import inventory as inv_mod  # noqa: E402
 from discovery import capability  # noqa: E402
@@ -243,6 +244,8 @@ def cmd_baseline(args) -> int:
     path = inv_mod.save(inv)
     print(f"Baseline inventory written to {path}")
     _print_headline(inv)
+    if getattr(args, "sync", False):
+        _do_sync(inv)
     return 0
 
 
@@ -251,6 +254,8 @@ def cmd_refresh(args) -> int:
     path = inv_mod.save(inv)
     print(f"Inventory written to {path}")
     _print_headline(inv)
+    if getattr(args, "sync", False):
+        _do_sync(inv)
     return 0
 
 
@@ -296,6 +301,37 @@ def cmd_print(args) -> int:
         return 1
     print(json.dumps(inv, indent=2))
     return 0
+
+
+def cmd_sync(args) -> int:
+    inv = inv_mod.load()
+    if inv is None:
+        print("No inventory yet - run --baseline or --refresh first.")
+        return 1
+    ok, configured = _do_sync(inv)
+    if ok:
+        return 0
+    # Not being wired up to WeveNova is a benign, expected local-only state
+    # (the kit works fully offline); only a real attempt that failed is exit 2.
+    return 0 if not configured else 2
+
+
+def _do_sync(inv: dict) -> tuple[bool, bool]:
+    """Push the inventory to the WeveNova tenant-inventory MCP. Best-effort.
+
+    Returns ``(ok, configured)`` so callers can tell a benign "not wired up"
+    state apart from a real sync failure.
+    """
+    try:
+        sys.path.insert(0, os.path.join(HERE, "planner"))
+        import wevenova
+        configured = wevenova.is_configured()
+        ok, msg = wevenova.sync_inventory(inv)
+        print(("WeveNova: " if ok else "WeveNova (skipped): ") + msg)
+        return ok, configured
+    except Exception as e:  # noqa: BLE001 - sync must never break discovery
+        print(f"WeveNova (skipped): {e}")
+        return False, False
 
 
 def _print_headline(inv: dict) -> None:
@@ -419,6 +455,8 @@ def main() -> int:
                        help="Re-read /connect output and advance intake items.")
     group.add_argument("--print", dest="do_print", action="store_true",
                        help="Print the current inventory JSON.")
+    group.add_argument("--sync", dest="sync_only", action="store_true",
+                       help="Push the current inventory to the WeveNova tenant inventory MCP.")
     group.add_argument("--selftest", action="store_true",
                        help="Run the offline self-test.")
 
@@ -428,12 +466,16 @@ def main() -> int:
                         help="Intake status (with --add-intake).")
     parser.add_argument("--notes", default="",
                         help="Intake notes (with --add-intake).")
+    parser.add_argument("--do-sync", dest="sync", action="store_true",
+                        help="Also push to WeveNova after --refresh/--baseline.")
     args = parser.parse_args()
 
     if args.selftest:
         return cmd_selftest(args)
     if args.do_print:
         return cmd_print(args)
+    if args.sync_only:
+        return cmd_sync(args)
     if args.reconcile:
         return cmd_reconcile(args)
     if args.add_intake:

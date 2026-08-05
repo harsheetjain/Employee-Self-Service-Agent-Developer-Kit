@@ -113,7 +113,7 @@ will be re-created by step 4 with the new auth type after verification).
 
 **Message:**
 
-| # | Task | Status |
+| # | Step | Status |
 |---|------|--------|
 | 1 | Instance configured | ✅ |
 | 2 | Connection secured | ⬜ |
@@ -144,7 +144,7 @@ Copy `src/skills/connect/servicenow/steps.md` to
 
 **Message:**
 
-| # | Task | Status |
+| # | Step | Status |
 |---|------|--------|
 | 1 | Instance configured | ⬜ |
 | 2 | Connection secured | ⬜ |
@@ -188,7 +188,7 @@ Copy `src/skills/connect/servicenow/steps.md` to
 
 **Message:**
 
-| # | Task | Status |
+| # | Step | Status |
 |---|------|--------|
 | 1 | Instance configured | ⬜ |
 | 2 | Connection secured | ⬜ |
@@ -233,7 +233,7 @@ Copy `src/skills/connect/workday/steps.md` to
 
 **Message:**
 
-| # | Task | Status |
+| # | Step | Status |
 |---|------|--------|
 | 1 | Environment configured | ⬜ |
 | 2 | Admin setup complete | ⬜ |
@@ -264,7 +264,7 @@ Copy `src/skills/connect/workday/steps.md` to
 
 **Message:**
 
-| # | Task | Status |
+| # | Step | Status |
 |---|------|--------|
 | 1 | Environment configured | ⬜ |
 | 2 | Admin setup complete | ⬜ |

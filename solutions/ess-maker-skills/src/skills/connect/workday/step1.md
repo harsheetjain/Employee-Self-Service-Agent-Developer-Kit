@@ -369,7 +369,7 @@ Update `.local/connect/workday/config.json` — merge all discovered values:
 
 ## 1.8 — Show status and proceed
 
-Update `.local/connect/workday/tasks.md` — change step 1 from
+Update `.local/connect/workday/steps.md` — change step 1 from
 `- [ ]` to `- [x]`.
 
 Build a status summary from the detected state.

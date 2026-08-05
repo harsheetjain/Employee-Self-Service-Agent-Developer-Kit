@@ -585,7 +585,7 @@ and verify the full permission list.
 
 ## 3.7 — Complete
 
-Update `.local/connect/workday/tasks.md` — change step 3 to `- [x]`.
+Update `.local/connect/workday/steps.md` — change step 3 to `- [x]`.
 
 Update `.local/connect/workday/config.json` — set `"status": "connected"`.
 

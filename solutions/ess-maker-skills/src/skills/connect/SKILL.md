@@ -18,7 +18,7 @@ pass it to step1 as PRE_SELECTED_INTEGRATION. Step1 will skip the
 
 Read `src/skills/connect/step1.md` and follow it.
 
-(Step 1 asks which integration. It checks `.local/connect/{integration}/tasks.md`
+(Step 1 asks which integration. It checks `.local/connect/{integration}/steps.md`
 for existing state — completed, in-progress, or fresh. Then it dispatches to
 the integration-specific step files.)
 
@@ -26,11 +26,11 @@ the integration-specific step files.)
 
 ## Routing
 
-Each integration has its own folder with its own tasks.md and step files:
+Each integration has its own folder with its own steps.md and step files:
 
 - **ServiceNow**: `src/skills/connect/servicenow/`
-  - Tasks template: `src/skills/connect/servicenow/tasks.md`
-  - State file: `.local/connect/servicenow/tasks.md`
+  - Steps template: `src/skills/connect/servicenow/steps.md`
+  - State file: `.local/connect/servicenow/steps.md`
   - Config file: `.local/connect/servicenow/config.json`
   - Step 1: `step1.md` — instance info, MCP setup, connectivity check
   - Step 2 (Entra): `step2-entra.md` — create Entra app registration for user login
@@ -43,8 +43,8 @@ Each integration has its own folder with its own tasks.md and step files:
   - Step 4: `step4.md` — verify connection
 
 - **Workday**: `src/skills/connect/workday/`
-  - Tasks template: `src/skills/connect/workday/tasks.md`
-  - State file: `.local/connect/workday/tasks.md`
+  - Steps template: `src/skills/connect/workday/steps.md`
+  - State file: `.local/connect/workday/steps.md`
   - Config file: `.local/connect/workday/config.json`
   - Step 1: `step1.md` — gather info, MCP setup, connectivity check, detect existing state (Entra app, extension pack, RaaS report) and classify the install path (simplified vs legacy)
   - Step 2: `step2.md` — admin setup. Simplified path = Entra SSO + register the Workday API client (the `ff0df` connection's `oauthClientId`). Legacy path = Entra SSO + ISU accounts, security groups, auth policies, API client, domain permissions, RaaS report
@@ -93,6 +93,6 @@ Each integration has its own folder with its own tasks.md and step files:
   2 flows, the topic redirect, plus the env var on legacy. Do NOT
   accept "done" without checking.
 
-Each integration's tasks.md and config.json persist after completion.
+Each integration's steps.md and config.json persist after completion.
 Running `/connect` again lets the user add a different integration
 without losing existing ones.

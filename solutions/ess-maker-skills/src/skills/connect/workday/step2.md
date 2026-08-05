@@ -994,7 +994,7 @@ Wait for the user on retry. Re-run `get_user_context`.
 
 ## 2.7 — Complete step 2
 
-Update `.local/connect/workday/tasks.md` — change step 2 from
+Update `.local/connect/workday/steps.md` — change step 2 from
 `- [ ]` to `- [x]`.
 
 **If INSTALL_PATH is `simplified`:**

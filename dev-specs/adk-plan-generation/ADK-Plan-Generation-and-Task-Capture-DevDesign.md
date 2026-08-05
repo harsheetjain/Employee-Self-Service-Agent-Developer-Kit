@@ -79,7 +79,7 @@ Step 1 is the **greenfield** path — an empty tenant, plan from intent. A later
 
 Verified on `origin/main` (Appendix A). The kit is a **Copilot Chat grounding workspace**, not a running service: "skills" are Markdown playbooks the chat agent reads and follows, backed by Python scripts for the deterministic parts.
 
-- **Skill model.** Each capability is a `src/skills/<name>/SKILL.md` playbook (sometimes with `stepN.md` sub‑files and a `tasks.md` checklist), invoked by a `.github/prompts/<name>.prompt.md` slash command and routed from `.github/copilot-instructions.md`. Existing skills: `onboarding` (`/setup`), `connect`, `topics/*`, `workflows/*`, `evaluations/*`, `flightcheck`, `cleanup` (`/scan`), `troubleshoot`, `backup/restore-template-configs`. **There is no `/plan` or `/planner` skill on `main`** (`git grep` finds only a VS Code *Plan mode* tip in `menu.prompt.md`).
+- **Skill model.** Each capability is a `src/skills/<name>/SKILL.md` playbook (sometimes with `stepN.md` sub‑files and a `steps.md` checklist), invoked by a `.github/prompts/<name>.prompt.md` slash command and routed from `.github/copilot-instructions.md`. Existing skills: `onboarding` (`/setup`), `connect`, `topics/*`, `workflows/*`, `evaluations/*`, `flightcheck`, `cleanup` (`/scan`), `troubleshoot`, `backup/restore-template-configs`. **There is no `/plan` or `/planner` skill on `main`** (`git grep` finds only a VS Code *Plan mode* tip in `menu.prompt.md`).
 - **The gate + local state.** `.local/config.json` (written atomically by `scripts/setup.py`) records `setup:"complete"`, the active `agent`, the `agents[]` array, and `dataverseEndpoint`. The copilot‑instructions gate every action on this file existing. `workspace/agents/<slug>/` holds the local working copy of the deployed agent. On `main`, `workspace/` tracks only `agents/.gitkeep` and `onboarding/.gitkeep` — **no `plan/`, no `inventory/`.**
 - **Grounding corpus.** `src/reference/ess-docs/` is a **vendored snapshot of MS Learn ESS docs** (snapshot dated 2026‑04‑29; `README.md` records the source URL + layout). `src/examples/ess-samples/` holds real topic/config samples.
 - **The mutation pipeline.** Every change follows **Checkpoint → Local edit → Scan → Dry run → Push → Verify** (`scripts/checkpoint.py`, `scripts/push.py`). Local edits aren't live until pushed.
@@ -344,7 +344,7 @@ workspace/
       "assignedTo": { "type": "Role", "id": "integration-owner",     // OPEN TO A ROLE (pool) — nobody yet
                       "role": { "roleId": "integration-owner" } },
       "state": "NotStarted", "produces": ["workdayConnection","workdayEntraApp"], "consumes": ["primaryEnvironment"],
-      // OPTIONAL read-back-only step display — the skill fills this at RUNTIME from its tasks.md (§10.1).
+      // OPTIONAL read-back-only step display — the skill fills this at RUNTIME from its steps.md (§10.1).
       // Not a sub-entity, not promoted, not the Task boundary; empty until the skill runs.
       "checklist": [ { "label": "Admin setup complete", "done": false },
                      { "label": "Connection verified",  "done": false } ] },
@@ -391,7 +391,7 @@ workspace/
 | `tasks[].assignedTo` (extended Principal) | `Task.AssignedTo` Principal (`Role`/`User`) (§7.4) | Three states above; `AssignedToRoleId`/`AssignedToType` promoted server‑side. |
 | `tasks[].produces/consumes` | `Task.Produces/Consumes` (§7.2) | Keys, **grounded from the Learn doc (§7.6)**; each `produces` key is filled at completion by observe‑or‑ask (§12). Phase‑2 dependency wiring. |
 | `outputs[]` (PlanArtifact) | `Plan.Outputs[]` (§7.3) | `key`, `kind`, `attributes` (pinned), `inventoryRef`, `producedByTaskId`, `provenance`, `state`. |
-| `tasks[].checklist[]` *(optional)* | *(client‑only)* | Read‑back‑only step display, filled by the skill at runtime from its `tasks.md` (§10.1). Not a WeveNova entity/scalar; maps into the Task description or client metadata, or is dropped, on sync. |
+| `tasks[].checklist[]` *(optional)* | *(client‑only)* | Read‑back‑only step display, filled by the skill at runtime from its `steps.md` (§10.1). Not a WeveNova entity/scalar; maps into the Task description or client metadata, or is dropped, on sync. |
 
 The ADK‑only fields are `task.action` and the optional `task.checklist[]` (§10.1). `task.action` is **how** the Task is performed: `{kind: kitSkill|manual|portal|external, skill?, ref?}` — usually a kit skill (`/setup`, `/connect`, `/evaluate`), sometimes a manual/portal/admin or external step with a grounded Learn/portal `ref` (registering an Entra app, publishing the agent). The action, the Task's role, and its `produces` keys are all **grounded from the Learn docs** during research (§7.6), not asked of the sponsor. Both fields are client execution/display detail; on sync they map into the Task description/client metadata, never a WeveNova promoted scalar.
 
@@ -423,7 +423,7 @@ The planner keeps a small grounded **seed** of PM‑spec dependencies (`KNOWN_SC
 
 A Task is the **smallest unit that (a) one owner can complete end‑to‑end and (b) maps to a single action run to completion** — *usually* one kit skill (`/setup`, `/connect`), but sometimes a manual/portal/admin or external step with **no** kit skill (registering an Entra app in the portal, publishing the agent, a data‑residency sign‑off).
 
-**A Task is not a skill's internal steps.** A kit skill like `connect` is itself a multi‑step procedure with its own checklist (`connect/workday/tasks.md`: *environment configured → admin setup → connection verified*) and step files (`step1/2/3.md`). Those steps sit **one plane below** the Plan — they are how a single assignee *executes* one Task in one session, owned and tracked by the skill (its `.local/connect/workday/tasks.md` state + the todo‑list), not units of the rollout. So "Connect Workday" is **one Plan Task** (`action: kitSkill connect`); its steps do **not** become sibling Tasks, and we do **not** add both "run connect" *and* its checklist items as Tasks (that double‑counts). The Plan records the Task's state and its produced artifacts (`workdayConnection`, `workdayEntraApp`) — stable **however many** internal steps ran.
+**A Task is not a skill's internal steps.** A kit skill like `connect` is itself a multi‑step procedure with its own checklist (`connect/workday/steps.md`: *environment configured → admin setup → connection verified*) and step files (`step1/2/3.md`). Those steps sit **one plane below** the Plan — they are how a single assignee *executes* one Task in one session, owned and tracked by the skill (its `.local/connect/workday/steps.md` state + the todo‑list), not units of the rollout. So "Connect Workday" is **one Plan Task** (`action: kitSkill connect`); its steps do **not** become sibling Tasks, and we do **not** add both "run connect" *and* its checklist items as Tasks (that double‑counts). The Plan records the Task's state and its produced artifacts (`workdayConnection`, `workdayEntraApp`) — stable **however many** internal steps ran.
 
 Three reasons the Task stays at skill granularity, not step granularity:
 - **One assignee.** Every connect step is done by the *same* person in one sitting; a Task has one assignee, so steps don't earn separate Tasks.
@@ -432,7 +432,7 @@ Three reasons the Task stays at skill granularity, not step granularity:
 
 **The one reason to split a Task — a role boundary, never a step boundary.** Split "Connect Workday" into more than one Plan Task **only** when a portion needs a *different owner*. Research grounds a role per prerequisite (§7.6), so if the docs put *register the Entra app* on an `entra-admin`, the *Workday API‑client / ISU / security* work on a `workday-admin`, and *create the connection & verify* on an `integration-owner`, those become separate Tasks (each a slice of the skill, or a portal step). If one admin holds all of it (the MVP soft assumption, §3) it collapses to a single "Connect Workday" Task. **Role boundary = Task boundary; the skill's steps are never the boundary.**
 
-**Step visibility without making Step first‑class.** "Step is not a first‑class entity" and stays that way — there is no Plan→Task→Step tree (rejected, §16). When the Plan needs to *show* progress inside a Task, the skill fills an optional, read‑back‑only `checklist[]` on the Task (§9.2) at runtime from its `tasks.md` — display state, not addressable entities, with no new entity and no migration.
+**Step visibility without making Step first‑class.** "Step is not a first‑class entity" and stays that way — there is no Plan→Task→Step tree (rejected, §16). When the Plan needs to *show* progress inside a Task, the skill fills an optional, read‑back‑only `checklist[]` on the Task (§9.2) at runtime from its `steps.md` — display state, not addressable entities, with no new entity and no migration.
 
 ### 10.2 Task → action + role map (grounded from Learn)
 
